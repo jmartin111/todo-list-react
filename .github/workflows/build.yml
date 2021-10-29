@@ -1,4 +1,4 @@
-name: Build
+name: Build_me
 on: [push, pull_request]
 jobs:
   build:
