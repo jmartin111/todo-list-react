@@ -1,4 +1,4 @@
-name: Build_me
+name: Build
 on: [push, pull_request]
 jobs:
   build:
@@ -9,4 +9,5 @@ jobs:
     - name: Build
       uses: docker/build-push-action@v1
       with:
+        dockerfile: Dockerfile
         push: false
