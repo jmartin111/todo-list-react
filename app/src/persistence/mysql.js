@@ -118,6 +118,16 @@ async function removeItem(id) {
     });
 }
 
+async function editItem(id, item) {
+    return new Promise((acc, rej) => {
+        pool.query('UPDATE todo_items SET name = ? WHERE id = ?', [item.name, id],
+        err => {
+            if (err) return rej(err);
+            acc();
+        });
+    });
+}
+
 module.exports = {
     init,
     teardown,
@@ -126,4 +136,5 @@ module.exports = {
     storeItem,
     updateItem,
     removeItem,
+    editItem,
 };

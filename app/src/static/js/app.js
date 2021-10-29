@@ -3,7 +3,7 @@ function App() {
     return (
         <Container>
             <Row>
-                <Col md={{ offset: 3, span: 6 }}>
+                <Col md={{ offset: 3, span: 10 }}>
                     <TodoListCard />
                 </Col>
             </Row>
@@ -47,6 +47,18 @@ function TodoListCard() {
         [items],
     );
 
+    const onItemEdit = React.useCallback(
+        item => {
+            const index = items.findIndex(i => i.id === item.id);
+            setItems([
+                ...items.slice(0, index),
+                item,
+                ...items.slice(index + 1),
+            ]);
+        },
+        [items],
+    )
+
     if (items === null) return 'Loading...';
 
     return (
@@ -61,6 +73,7 @@ function TodoListCard() {
                     key={item.id}
                     onItemUpdate={onItemUpdate}
                     onItemRemoval={onItemRemoval}
+                    onItemEdit={onItemEdit}
                 />
             ))}
         </React.Fragment>
@@ -96,7 +109,7 @@ function AddItemForm({ onNewItem }) {
                     value={newItem}
                     onChange={e => setNewItem(e.target.value)}
                     type="text"
-                    placeholder="New Item"
+                    placeholder="Add item to list..."
                     aria-describedby="basic-addon1"
                 />
                 <InputGroup.Append>
@@ -114,7 +127,7 @@ function AddItemForm({ onNewItem }) {
     );
 }
 
-function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
+function ItemDisplay({ item, onItemUpdate, onItemRemoval, onItemEdit }) {
     const { Container, Row, Col, Button } = ReactBootstrap;
 
     const toggleCompletion = () => {
@@ -136,10 +149,23 @@ function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
         );
     };
 
+    const editItem = () => {
+        fetch(`/items/${item.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                name: item.name,
+                editing: true,
+            }),
+            headers: { 'Content-Type': 'application/json '},
+        })
+            .then(r => r.json())
+            .then(onItemEdit);
+    };
+
     return (
         <Container fluid className={`item ${item.completed && 'completed'}`}>
             <Row>
-                <Col xs={1} className="text-center">
+                <Col xs={1}>
                     <Button
                         className="toggles"
                         size="sm"
@@ -152,16 +178,24 @@ function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
                         }
                     >
                         <i
-                            className={`far ${
-                                item.completed ? 'fa-check-square' : 'fa-square'
-                            }`}
+                            className={`far ${item.completed ? 'fa-check-square' : 'fa-square'}`}
                         />
                     </Button>
                 </Col>
-                <Col xs={10} className="name">
+                <Col xs={7} className="name">
                     {item.name}
                 </Col>
-                <Col xs={1} className="text-center remove">
+                <Col xs={2} className="text-center">
+                    <Button
+                        size="sm"
+                        variant="link"
+                        onClick={editItem}
+                        aria-label="Edit Item"
+                    >
+                        <i className="fas fa-edit text-info" />
+                    </Button>
+                </Col>
+                <Col xs={2} className="text-center remove">
                     <Button
                         size="sm"
                         variant="link"
