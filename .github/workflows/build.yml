@@ -9,5 +9,6 @@ jobs:
     - name: Build
       uses: docker/build-push-action@v1
       with:
-        dockerfile: Dockerfile
+        dockerfile: './app/Dockerfile'
+        path: './app'
         push: false
